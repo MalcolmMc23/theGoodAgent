@@ -3,7 +3,7 @@ import CanvasContext from "./CanvasContext";
 import CanvasToolbar from "./CanvasToolbar";
 import CanvasElement from "./CanvasElement";
 import Minimap from "./Minimap";
-import {
+import type {
   ElementType,
   CanvasState,
   CanvasElement as CanvasElementType,
@@ -151,6 +151,22 @@ export function Canvas() {
       window.removeEventListener("keydown", handleKeyDown);
     };
   }, [canvasState.selectedElementIds]);
+
+  useEffect(() => {
+    const preventBrowserZoom = (e: WheelEvent) => {
+      if (e.ctrlKey || e.metaKey) {
+        e.preventDefault();
+      }
+    };
+
+    // Add listener to prevent browser zoom via Ctrl/Cmd + Scroll
+    window.addEventListener("wheel", preventBrowserZoom, { passive: false });
+
+    return () => {
+      // Remove listener on component unmount
+      window.removeEventListener("wheel", preventBrowserZoom);
+    };
+  }, []); // Empty dependency array ensures this runs only on mount and unmount
 
   return (
     <CanvasContext.Provider value={{ canvasState, setCanvasState }}>
